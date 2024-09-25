@@ -1,4 +1,6 @@
 import { conexion } from "../database/conexion.js";
+import { validationResult } from "express-validator";
+
 
 export const GetMaterials = async (req, res) => {
     try {
@@ -17,6 +19,10 @@ export const GetMaterials = async (req, res) => {
 
 export const PostMaterial = async (req, res) => {
   try {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
     let {
       name_material
     } = req.body;
@@ -65,6 +71,10 @@ export const DeleteMaterials = async (req, res) => {
   export const UpdateMaterials = async (req, res) => {
     try {
   
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
         const { id } = req.params;
         const materials = req.body;
 

@@ -1,6 +1,7 @@
 import { conexion } from "../database/conexion.js";
+import { validationResult } from "express-validator";
 
-// Obtener todas las reseñas con el nombre del usuario, comentario de la respuesta y nombre del material
+
 export const GetReviews = async (req, res) => {
   try {
     const sql = `
@@ -21,10 +22,19 @@ export const GetReviews = async (req, res) => {
   }
 };
 
-// Crear una nueva reseña
 export const PostReview = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
     const { description, users_idusers, reply_idreply, materials_idmaterials } = req.body;
+    
+    // Verifica que la imagen fue subida
+    if (!req.file) {
+      return res.status(400).json({ message: "Se debe subir una imagen" });
+    }
 
     // Verificar que el usuario exista
     const [userCheck] = await conexion.query("SELECT * FROM users WHERE idusers = ?", [users_idusers]);
@@ -44,9 +54,11 @@ export const PostReview = async (req, res) => {
       return res.status(400).json({ message: "El material no existe" });
     }
 
-    const sql = `INSERT INTO reviews (description, date, users_idusers, reply_idreply, materials_idmaterials) VALUES (?, ?, ?, ?, ?)`;
-    const date = new Date(); // Establecer la fecha actual
-    const [result] = await conexion.query(sql, [description, date, users_idusers, reply_idreply, materials_idmaterials]);
+    const ruta_img = req.file.path; // Ruta de la imagen subida
+    const sql = `INSERT INTO reviews (description, date, users_idusers, reply_idreply, materials_idmaterials, ruta_img) VALUES (?, ?, ?, ?, ?, ?)`;
+    const date = new Date();
+
+    const [result] = await conexion.query(sql, [description, date, users_idusers, reply_idreply, materials_idmaterials, ruta_img]);
 
     if (result.affectedRows > 0) {
       res.status(201).json({ message: "Se registró la reseña con éxito" });

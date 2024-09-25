@@ -1,11 +1,16 @@
-import { Router } from "express";
+import express from 'express';
 import { GetUsers, PostUsers, DeleteUsers, UpdateUsers } from "../controllers/UserController.js";
+import { validarToken } from "../controllers/AuthController.js";
+import { userValidate } from "../validations/UserValidate.js";
 
-const routeUsers = Router()
+const routeUsers = express.Router();
 
-routeUsers.get('/listar', GetUsers)
-routeUsers.post('/registrar', PostUsers)
-routeUsers.put('/actualizar/:id', UpdateUsers)
-routeUsers.delete('/eliminar/:idusers', DeleteUsers)
+routeUsers.get('/listar', validarToken, GetUsers);
+routeUsers.post('/registrar', userValidate, PostUsers);
+routeUsers.put('/actualizar/:id', userValidate, validarToken, UpdateUsers);
+routeUsers.delete('/eliminar/:idusers', validarToken, DeleteUsers);
 
-export default routeUsers
+export default (servidor) => servidor.use("/users", routeUsers);
+
+
+// inversion de control: el router decide que servidor usar 

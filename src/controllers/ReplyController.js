@@ -1,4 +1,5 @@
 import { conexion } from "../database/conexion.js";
+import { validationResult } from "express-validator";
 
 // Obtener todas las respuestas y el nombre del usuario
 export const GetReplies = async (req, res) => {
@@ -22,6 +23,10 @@ export const GetReplies = async (req, res) => {
 // Crear una nueva respuesta
 export const PostReply = async (req, res) => {
   try {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
     const { comment, users_idusers } = req.body;
 
     // Verificar que el usuario exista
@@ -47,6 +52,10 @@ export const PostReply = async (req, res) => {
 // Actualizar una respuesta
 export const UpdateReply = async (req, res) => {
   try {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
     const { id } = req.params;
     const { comment, users_idusers } = req.body;
 

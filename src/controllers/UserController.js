@@ -1,5 +1,6 @@
 import { conexion } from "../database/conexion.js";
 import bcryptjs from "bcryptjs";
+import { validationResult } from "express-validator";
 
 
 export const GetUsers = async (req, res) => {
@@ -19,6 +20,10 @@ export const GetUsers = async (req, res) => {
 
 export const PostUsers = async (req, res) => {
   try {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
     let {
       name_user,
       email,
@@ -72,6 +77,10 @@ export const DeleteUsers = async (req, res) => {
   export const UpdateUsers = async (req, res) => {
     try {
   
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
         const { id } = req.params;
         const users = req.body;
   
